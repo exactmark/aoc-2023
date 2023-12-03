@@ -2,6 +2,8 @@ package Day03
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 )
 
 type part struct {
@@ -13,14 +15,16 @@ type part struct {
 
 var symbolMap map[string]string
 var partMap map[string]part
+var partPtrMap map[string]*part
 
 func populateMaps(inputLines []string) {
 	symbolMap = make(map[string]string)
 	partMap = make(map[string]part)
+	partPtrMap = make(map[string]*part)
 	for y := 0; y < len(inputLines); y++ {
 		for x := 0; x < len(inputLines[y]); x++ {
 			if isSymbol(inputLines[y][x]) {
-				symbolMap[fmt.Sprintf("%v,%v", x, y)] = string(inputLines[y][x])
+				symbolMap[coordToString(x, y)] = string(inputLines[y][x])
 			}
 			if isNumber(inputLines[y][x]) {
 				numStart := x
@@ -44,7 +48,10 @@ func populateMaps(inputLines []string) {
 					id:      workingId,
 					partLen: len(fmt.Sprintf("%v", workingId)),
 				}
-				partMap[fmt.Sprintf("%v,%v", numStart, y)] = newPart
+				partMap[coordToString(numStart, y)] = newPart
+				for ptr := numStart; ptr < numStart+newPart.partLen; ptr++ {
+					partPtrMap[coordToString(ptr, y)] = &newPart
+				}
 			}
 		}
 	}
@@ -73,7 +80,7 @@ func (p part) hasAdjacentSymbol() bool {
 	for y := p.y - 1; y <= p.y+1; y++ {
 		for x := p.x - 1; x <= p.x+p.partLen; x++ {
 			//fmt.Printf("checking: %v,%v\n",x,y)
-			if _, ok := symbolMap[fmt.Sprintf("%v,%v", x, y)]; ok {
+			if _, ok := symbolMap[coordToString(x, y)]; ok {
 				return true
 			}
 		}
@@ -93,16 +100,50 @@ func solvePt1(inputLines []string) {
 			fmt.Printf("skipping: %v\n", singlePart.id)
 		}
 	}
-	partMap["0,0"].hasAdjacentSymbol()
+	//partMap["0,0"].hasAdjacentSymbol()
 	fmt.Printf("%v\n", sum)
 }
 
-func solvePt2(inputLines []string) {
+func coordToString(x int, y int) string {
+	return fmt.Sprintf("%v,%v", x, y)
+}
 
-	fmt.Printf("%v\n", 2)
+func stringToCoord(s string) (int, int) {
+	x, _ := strconv.Atoi(strings.Split(s, ",")[0])
+	y, _ := strconv.Atoi(strings.Split(s, ",")[1])
+	return x, y
+}
+
+func solvePt2(inputLines []string) {
+	populateMaps(inputLines)
+	sum := 0
+	for coord, singleSymbol := range symbolMap {
+		if singleSymbol == "*" {
+			fmt.Printf("%v,%v\n", coord, singleSymbol)
+			xGear, yGear := stringToCoord(coord)
+			adjPartMap := make(map[*part]bool)
+			for y := yGear - 1; y <= yGear+1; y++ {
+				for x := xGear - 1; x <= xGear+1; x++ {
+					if thisPart, ok := partPtrMap[coordToString(x, y)]; ok {
+						adjPartMap[thisPart] = true
+					}
+				}
+			}
+			if len(adjPartMap) == 2 {
+				ratio := 1
+				for singlePart, _ := range adjPartMap {
+					ratio *= (singlePart.id)
+				}
+				sum += ratio
+			}
+
+		}
+	}
+
+	fmt.Printf("%v\n", sum)
 }
 
 func Solve(inputLines []string) {
-	solvePt1(inputLines)
-	//solvePt2(inputLines)
+	//solvePt1(inputLines)
+	solvePt2(inputLines)
 }
