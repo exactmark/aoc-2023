@@ -132,7 +132,7 @@ func solvePt2(inputLines []string) {
 			if len(adjPartMap) == 2 {
 				ratio := 1
 				for singlePart, _ := range adjPartMap {
-					ratio *= (singlePart.id)
+					ratio *= singlePart.id
 				}
 				sum += ratio
 			}
