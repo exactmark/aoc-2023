@@ -12,6 +12,18 @@ type transformPoints struct {
 	transRange  int
 }
 
+func (p transformPoints) transform(i int) int {
+	tDist := p.source - p.destination
+	return i - tDist
+}
+
+func (p transformPoints) tPtsContains(i int) bool {
+	if i >= p.source && i < (p.source+p.transRange) {
+		return true
+	}
+	return false
+}
+
 type transformationMap struct {
 	sourceType string
 	destType   string
@@ -20,6 +32,22 @@ type transformationMap struct {
 
 type transformationDictionary struct {
 	dictionaries *map[string]*transformationMap
+}
+
+func (d transformationDictionary) getTransformation(s string, i int) (string, int) {
+	correctDict := (*d.dictionaries)[s]
+	destPt := getTransformedPt(correctDict.mapList, i)
+	return correctDict.destType, destPt
+}
+
+func getTransformedPt(list *[]transformPoints, i int) int {
+	ptsList := *list
+	for _, singlePtMap := range ptsList {
+		if singlePtMap.tPtsContains(i) {
+			return singlePtMap.transform(i)
+		}
+	}
+	return i
 }
 
 func getNumList(s string) []int {
@@ -80,11 +108,38 @@ func getMap(s []string, i int) (*transformationMap, int) {
 	return &newMap, i
 }
 
+func getLocationFromSeed(tDict *transformationDictionary, i int) int {
+	nextSource := "seed"
+	currentPtr := i
+	for nextSource != "location" {
+		nextSource, currentPtr = tDict.getTransformation(nextSource, currentPtr)
+	}
+	return currentPtr
+}
+
 func solvePt1(inputLines []string) {
 	seedList := makeSeedList(inputLines[0])
+
 	transDict := makeTransformationDictionary(inputLines[2:])
-	fmt.Printf("%v\n", seedList)
-	fmt.Printf("%v\n", transDict)
+
+	location := getLocationFromSeed(transDict, seedList[0])
+	for _, seed := range seedList[1:] {
+		newLoc := getLocationFromSeed(transDict, seed)
+		if newLoc < location {
+			location = newLoc
+		}
+	}
+
+	fmt.Printf("%v\n", location)
+	//for x:=0;x<=100;x++{
+	//	_, ptr := transDict.getTransformation("seed", x)
+	//	fmt.Printf("%v,%v\n",x,ptr)
+	//}
+	//destination, ptr := transDict.getTransformation("seed", 50)
+	//fmt.Printf("%v\n", transDict)
+	//fmt.Printf("%v\n", destination)
+	//fmt.Printf("%v\n", ptr)
+
 }
 
 func solvePt2(inputLines []string) {
