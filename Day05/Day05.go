@@ -155,8 +155,8 @@ func solvePt2Single(inputLines []string) {
 
 	for i := 0; i < len(seedRanges); i += 2 {
 		for j := seedRanges[i]; j < seedRanges[i]+seedRanges[i+1]; j++ {
-			//newLoc:=getLocationFromSeed(transDict,j)
-			newLoc := j
+			newLoc := getLocationFromSeed(transDict, j)
+			//newLoc := j
 			if newLoc < location {
 				location = newLoc
 			}
