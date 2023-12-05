@@ -168,6 +168,34 @@ func solvePt2Single(inputLines []string) {
 }
 
 func getLowestLocationInRange(c chan int, start int, seedRange int, transDict *transformationDictionary) {
+	subSeedSize := 100000
+	if seedRange > subSeedSize {
+		newCh := make(chan int)
+		numChannels := 0
+		for x := start; x < start+seedRange; x += subSeedSize {
+			if x+subSeedSize > start+seedRange {
+				go getLowestLocationInRange(newCh, x, start+seedRange-x, transDict)
+				numChannels++
+			} else {
+				go getLowestLocationInRange(newCh, x, subSeedSize, transDict)
+				numChannels++
+			}
+		}
+
+		var newLoc int
+		var location int
+		location = <-newCh
+		for i := 0; i < numChannels-1; i++ {
+			newLoc = <-newCh
+			if newLoc < location {
+				location = newLoc
+			}
+			//fmt.Printf("received %v of %v\n", i, numChannels)
+		}
+		c <- location
+		return
+	}
+
 	location := getLocationFromSeed(transDict, start)
 	for i := start; i < start+seedRange; i++ {
 		newLoc := getLocationFromSeed(transDict, i)
