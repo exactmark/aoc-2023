@@ -2,6 +2,7 @@ package Day05
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -45,6 +46,9 @@ func (d transformationDictionary) getTransformation(s string, i int) (string, in
 func getTransformedPt(list *[]transformPoints, i int) int {
 	ptsList := *list
 	for _, singlePtMap := range ptsList {
+		if i < singlePtMap.source {
+			break
+		}
 		if singlePtMap.tPtsContains(i) {
 			return singlePtMap.transform(i)
 		}
@@ -106,6 +110,9 @@ func getMap(s []string, i int) (*transformationMap, int) {
 		}
 		mapList = append(mapList, pointSet)
 	}
+	slices.SortFunc(mapList, func(a, b transformPoints) int {
+		return a.source - b.source
+	})
 	newMap.mapList = &mapList
 	return &newMap, i
 }
@@ -232,6 +239,6 @@ func solvePt2(inputLines []string) {
 
 func Solve(inputLines []string) {
 	//seedToLocMemo=make(map[int]int)
-	//	solvePt1(inputLines)
-	solvePt2(inputLines)
+	solvePt1(inputLines)
+	//solvePt2(inputLines)
 }
