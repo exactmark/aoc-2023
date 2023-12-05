@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+var seedToLocMemo map[int]int
+
 type transformPoints struct {
 	destination int
 	source      int
@@ -109,11 +111,15 @@ func getMap(s []string, i int) (*transformationMap, int) {
 }
 
 func getLocationFromSeed(tDict *transformationDictionary, i int) int {
+	//if val,ok:=seedToLocMemo[i];ok{
+	//	return val
+	//}
 	nextSource := "seed"
 	currentPtr := i
 	for nextSource != "location" {
 		nextSource, currentPtr = tDict.getTransformation(nextSource, currentPtr)
 	}
+	//seedToLocMemo[i]=currentPtr
 	return currentPtr
 }
 
@@ -142,11 +148,62 @@ func solvePt1(inputLines []string) {
 
 }
 
+func solvePt2Single(inputLines []string) {
+	seedRanges := makeSeedList(inputLines[0])
+	transDict := makeTransformationDictionary(inputLines[2:])
+	location := getLocationFromSeed(transDict, seedRanges[0])
+
+	for i := 0; i < len(seedRanges); i += 2 {
+		for j := seedRanges[i]; j < seedRanges[i]+seedRanges[i+1]; j++ {
+			//newLoc:=getLocationFromSeed(transDict,j)
+			newLoc := j
+			if newLoc < location {
+				location = newLoc
+			}
+		}
+		fmt.Printf("%v of %v\n", i/2, len(seedRanges)/2)
+	}
+
+	fmt.Printf("%v\n", location)
+}
+
+func getLowestLocationInRange(c chan int, start int, seedRange int, transDict *transformationDictionary) {
+	location := getLocationFromSeed(transDict, start)
+	for i := start; i < start+seedRange; i++ {
+		newLoc := getLocationFromSeed(transDict, i)
+		if newLoc < location {
+			location = newLoc
+		}
+	}
+	c <- location
+}
+
 func solvePt2(inputLines []string) {
-	fmt.Printf("%v\n", 1)
+	seedRanges := makeSeedList(inputLines[0])
+	transDict := makeTransformationDictionary(inputLines[2:])
+	location := getLocationFromSeed(transDict, seedRanges[0])
+
+	c := make(chan int)
+	numChannels := 0
+	for i := 0; i < len(seedRanges); i += 2 {
+		go getLowestLocationInRange(c, seedRanges[i], seedRanges[i+1], transDict)
+		numChannels++
+	}
+
+	var newLoc int
+	for i := 0; i < numChannels; i++ {
+		newLoc = <-c
+		if newLoc < location {
+			location = newLoc
+		}
+		fmt.Printf("received %v of %v\n", i, numChannels)
+	}
+
+	fmt.Printf("%v\n", location)
 }
 
 func Solve(inputLines []string) {
-	solvePt1(inputLines)
-	//solvePt2(inputLines)
+	//seedToLocMemo=make(map[int]int)
+	//	solvePt1(inputLines)
+	solvePt2(inputLines)
 }
