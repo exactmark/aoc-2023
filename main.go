@@ -1,7 +1,7 @@
 package main
 
 import (
-	"aoc-2023/Day04"
+	"aoc-2023/Day05"
 	"bufio"
 	"flag"
 	"fmt"
@@ -43,14 +43,14 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-	currentDay := "04"
+	currentDay := "05"
 
-	//inputLines := readInputFile("./Day" + currentDay + "/test_input.txt")
-	inputLines := readInputFile("./Day" + currentDay + "/input.txt")
+	inputLines := readInputFile("./Day" + currentDay + "/test_input.txt")
+	//inputLines := readInputFile("./Day" + currentDay + "/input.txt")
 
 	start := time.Now()
 
-	Day04.Solve(inputLines)
+	Day05.Solve(inputLines)
 
 	elapsed := time.Since(start)
 	fmt.Printf("solve took %s\n", elapsed)
