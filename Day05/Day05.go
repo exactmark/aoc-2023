@@ -118,15 +118,12 @@ func getMap(s []string, i int) (*transformationMap, int) {
 }
 
 func getLocationFromSeed(tDict *transformationDictionary, i int) int {
-	//if val,ok:=seedToLocMemo[i];ok{
-	//	return val
-	//}
 	nextSource := "seed"
 	currentPtr := i
 	for nextSource != "location" {
 		nextSource, currentPtr = tDict.getTransformation(nextSource, currentPtr)
 	}
-	//seedToLocMemo[i]=currentPtr
+
 	return currentPtr
 }
 
@@ -238,7 +235,6 @@ func solvePt2(inputLines []string) {
 }
 
 func Solve(inputLines []string) {
-	//seedToLocMemo=make(map[int]int)
-	solvePt1(inputLines)
-	//solvePt2(inputLines)
+	//solvePt1(inputLines)
+	solvePt2(inputLines)
 }
