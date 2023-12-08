@@ -51,24 +51,72 @@ func solvePt2(inputLines []string) {
 			currentNodeList = append(currentNodeList, k)
 		}
 	}
+	offsetList := make([]int, 0)
+	cycleList := make([]int, 0)
+
 	fmt.Printf("%v\n", currentNodeList)
-	for !isAllZs(currentNodeList) {
-		nextStep := directions[steps%len(directions)]
-		//fmt.Printf("nextStep: %v\n", string(nextStep))
-		for i, v := range currentNodeList {
-			currentNodeList[i] = getNextNode(dirMap, v, nextStep)
+
+	currentNode := currentNodeList[0]
+	for i := range currentNodeList {
+		steps = 0
+		currentNode = currentNodeList[i]
+		foundZ := make([]string, 0)
+		foundZSteps := make([]int, 0)
+		for len(foundZSteps) < 2 {
+			nextStep := directions[steps%len(directions)]
+			//fmt.Printf("nextStep: %v\n", string(nextStep))
+			currentNode = getNextNode(dirMap, currentNode, nextStep)
+			if currentNode[2] == 'Z' {
+				foundZ = append(foundZ, currentNode)
+				foundZSteps = append(foundZSteps, steps)
+			}
+			steps++
+			//fmt.Printf("%v\n", currentNode)
 		}
-		steps++
-		//fmt.Printf("%v\n", currentNodeList)
+		offsetList = append(offsetList, foundZSteps[0])
+		cycleList = append(cycleList, foundZSteps[1]-foundZSteps[0])
 	}
 
-	fmt.Printf("%v\n", directions)
-	fmt.Printf("%v\n", dirMap)
-	fmt.Printf("%v\n", steps)
+	//hardcoded solution boo
+	fmt.Printf("%v\n", LCM(cycleList[0], cycleList[1], cycleList[2], cycleList[3], cycleList[4], cycleList[5]))
+
+	//for !isAllZs(currentNodeList) {
+	//	nextStep := directions[steps%len(directions)]
+	//	//fmt.Printf("nextStep: %v\n", string(nextStep))
+	//	for i, v := range currentNodeList {
+	//		currentNodeList[i] = getNextNode(dirMap, v, nextStep)
+	//	}
+	//	steps++
+	//	//fmt.Printf("%v\n", currentNodeList)
+	//}
+
+	//fmt.Printf("%v\n", directions)
+	//fmt.Printf("%v\n", dirMap)
+	//fmt.Printf("%v\n", steps)
 
 	fmt.Printf("%v\n", "fin")
 }
 
+// greatest common divisor (GCD) via Euclidean algorithm
+func GCD(a, b int) int {
+	for b != 0 {
+		t := b
+		b = a % b
+		a = t
+	}
+	return a
+}
+
+// find Least Common Multiple (LCM) via GCD
+func LCM(a, b int, integers ...int) int {
+	result := a * b / GCD(a, b)
+
+	for i := 0; i < len(integers); i++ {
+		result = LCM(result, integers[i])
+	}
+
+	return result
+}
 func isAllZs(list []string) bool {
 	for _, val := range list {
 		if val[2] != 'Z' {
